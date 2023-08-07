@@ -1,0 +1,12 @@
+# folder to store intermediate files temporarily
+tmp/
+
+# misc
+.DS_Store
+*.pem
+
+# local env files
+.env
+
+# python
+__pycache__/
