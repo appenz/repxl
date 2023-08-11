@@ -1,5 +1,6 @@
 # folder to store intermediate files temporarily
 tmp/
+test/
 
 # misc
 .DS_Store

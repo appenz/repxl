@@ -5,6 +5,11 @@ import tqdm
 import dotenv
 from PIL import Image
 
+# HEIF support for MacOS/iOS
+from pillow_heif import register_heif_opener
+register_heif_opener()
+
+
 # Take the largest possible square from the center of the image  
 # Right now, only works with square dimensions
 
@@ -23,7 +28,7 @@ def prep_images(srcdir, tmpdir, trainwidth, trainheight, iname=".src.jpg"):
     i = 0
     for filename in tqdm.tqdm(files):
         # Skip files that don't end with .png, .jpg or .jpeg
-        if not filename.lower().endswith(('.png', '.jpg', '.jpeg')):
+        if not filename.lower().endswith(('.png', '.jpg', '.jpeg', '.heic')):
             continue
         
         img = Image.open(os.path.join(srcdir, filename))

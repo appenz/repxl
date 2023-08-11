@@ -13,7 +13,7 @@ from PIL import Image
 from dotenv import load_dotenv, find_dotenv
 
 from imgtools import prep_images
-from finetune import upload_images
+from finetune import train_model
 
 def get_tmp_root(tmproot):
     if tmproot is None:
@@ -23,7 +23,7 @@ def get_tmp_root(tmproot):
     return tmproot
 
 def get_tmp_dir(tmproot,name):
-    tmproot = get_tmp_root()
+    tmproot = get_tmp_root(tmproot)
     tmp_dir =  os.path.join(tmproot,name)
     if not os.path.exists(tmp_dir):
         os.makedirs(tmp_dir)
@@ -39,7 +39,8 @@ def repxl():
 
 @repxl.command()
 @click.argument('prompt', type=click.STRING)
-def render(prompt):
+@click.option('--model', type=click.STRING, help="Name of the model to use in the format 'username/modelname'")
+def render(prompt,model):
     """Render a new image from a trained model."""
     print(prompt)
     pass
@@ -62,22 +63,22 @@ def prepare(srcdir,tmpdir,token):
     os.system(f"zip -j -r {tmp_root}/{token}.zip {tmp_dir}")
 
 @repxl.command()
-@click.argument('token', type=click.STRING)
+@click.option('--token', type=click.STRING, default="mysdxltoken", help="Token name we use for the training run, default is 'mysdxltoken'")
 @click.option('--tmpdir', type=click.STRING, default=None, help="Temporary directory for all training, default is ./tmp")
-@click.option('--temperature', type=click.FLOAT, default=1.0, help="Temperature for training, default is 1.0")
 @click.option('--masktarget', type=click.STRING, default="a face of a man", help="Mask target for training, default is 'a face'")
-def upload(token,tmpdir,temperature, masktarget):
-    """Upload the image set to Replicate.
+@click.option('--captionprefix', type=click.STRING, default="a photo of", help="Prefix before the token, default is a 'a photo of'")
+@click.option('--dreambooth', type=click.BOOL, default=False, help="Use dreambooth instead of LoRA")
+def train(token,tmpdir, masktarget, captionprefix, dreambooth):
+    """Fine-tune SDXL on Replicate.
     
-    TOKEN: Token name we use for the training run, default is 'mysdxltoken'
-    Outputs the URL where you can view progress."""
+    Training progress can be viewed on https://replicate.com/trainings"""
 
     tmpdir = get_tmp_root(tmpdir)
-    upload_images(token,tmpdir,masktarget=masktarget,temperature=temperature)
+    train_model(token,tmpdir,masktarget=masktarget,captionprefix=captionprefix, dreambooth=dreambooth)
 
 repxl.add_command(render)    
 repxl.add_command(prepare)    
-repxl.add_command(upload)
+repxl.add_command(train)
 
 if __name__ == '__main__':
     load_dotenv(find_dotenv())

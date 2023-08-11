@@ -1,0 +1,6 @@
+click==8.1.6
+Pillow==10.0.0
+pillow_heif==0.13.0
+python-dotenv==1.0.0
+replicate==0.10.0
+tqdm==4.65.0

@@ -7,7 +7,7 @@ import replicate
 from dotenv import load_dotenv, find_dotenv
 
 # Function that calls replicate to render an image with the standard SD XL model
-def upload_images(token,tmpdir,temperature=1.0, masktarget="a face"):
+def train_model(token,tmpdir, masktarget="a face", captionprefix="a photo of", dreambooth=False):
     """Upload images to Replicate."""
 
     filename = f'{tmpdir}/{token}.zip'
@@ -15,19 +15,21 @@ def upload_images(token,tmpdir,temperature=1.0, masktarget="a face"):
         print(f"File {filename} does not exist. Did you run prepare first?")
         return None
 
-    caption_text = f'a photo of a {token}'
+    caption_text = f'{captionprefix} {token}'
 
-    output = replicate.run(
-        "replicate/sdxl_preprocess:bd1158a5052ed46176da900ad7e2a80ea04a3c46196d93f9e1db879fd1ce7f29",
+    print(f'Launching training run for token {token} on Replicate.')
+    print(f'Caption: {caption_text}')
+    training = replicate.trainings.create(
+        version="stability-ai/sdxl:7ca7f0d3a51cd993449541539270971d38a24d9a0d42f073caf25190d41346d7",
         input={
-            "files": open(filename, "rb"),
-            "caption_text": caption_text,
+            "input_images": "https://guido.appenzeller.net/wp-content/uploads/tmp/chrltt.zip",
+            "caption_prefix": caption_text,
             "mask_target_prompts": masktarget,
-            "target_size": 1024,
-            "crop_based_on_salience": True,
-            "use_face_detection_instead": False,
-            "temp": temperature,
+            "resolution": 1024,
+            "use_face_detection_instead": True,
+            "is_lora": not dreambooth,
         },
+        destination="appenz/sdxl-chrltt-1-lora"
     )
+    print(training.status)
 
-    print(output) # Expect to get url to .tar file containing format above, like : https://replicate.delivery/pbxt/xxxx/data.tar
