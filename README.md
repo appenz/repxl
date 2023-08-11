@@ -26,7 +26,9 @@ Now use the tool to create a zip of all the images in the right format:
 
 ```python3 repxl.py prepare --token <yourtoken> <directory with your images>```
 
-This should generate a zip file in the `./tmp` directory. You need to host this zip file somewhere on the internet where it is accessible (e.g. and S3 bucket, web setver etc.)
+This should generate a zip file in the `./tmp` directory. You need to host this zip file somewhere on the internet where it is accessible (e.g. and S3 bucket, web server) and then modify the URL in the `finetune.py`. It should look like this:
+
+```"input_images": "https://your.filehost.com/justanexample.zip",```
 
 Once that is done, you can start training with:
 
